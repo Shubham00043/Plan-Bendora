@@ -34,7 +34,12 @@ if not app.config['SECRET_KEY']:
         # Generate a random one if missing in prod (safer than hardcoded)
         app.config['SECRET_KEY'] = os.urandom(24).hex()
 
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL')
+db_url = os.environ.get('DATABASE_URL')
+if not db_url:
+    db_url = 'sqlite:///smart_allocation.db'
+elif db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 app.config['OUTPUT_FOLDER'] = os.path.join(os.getcwd(), 'outputs')
 
