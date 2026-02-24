@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="static/clg_logo_nobg.png" alt="Smart Course Allocation Logo" width="120" />
+  <img src="static/clg_logo_nobg.png" alt="Plan-Bendora Logo" width="120" />
 </p>
 
-<h1 align="center">Smart Student Course Allocation System 🎓</h1>
+<h1 align="center">Plan-Bendora 🎓</h1>
 
 <p align="center">
   <strong>Automate. Allocate. Achieve.</strong><br/>
@@ -99,7 +99,7 @@ The system ensures **fairness and efficiency** by using a **First-Come-First-Ser
 
 ```bash
 git clone https://github.com/Shubham00043/Plan-Bendora.git
-cd Smart-Allocation-system
+cd Plan-Bendora
 ```
 
 ### 2. Create a Virtual Environment
@@ -196,7 +196,7 @@ Create a `.env` file in the project root (see `.env.example`):
 ## 📂 Project Structure
 
 ```
-Smart-Allocation-system/
+Plan-Bendora/
 │
 ├── app.py                  # Main application — routes, config, and server entry point
 ├── models.py               # SQLAlchemy models (User, Student, Course, SystemConfig, Notice)
@@ -239,7 +239,7 @@ Smart-Allocation-system/
 | ---------- | ------------------- | ------------------------------------------------ |
 | `GET/POST` | `/login`            | Student/Admin login (supports email or username) |
 | `GET/POST` | `/register`         | Student self-registration with OTP               |
-| `POST`     | `/send_otp`         | Send OTP to student email (rate-limited: 5/hr)   |
+| `POST`     | `/send_otp`         | Send OTP to student email (rate-limited: 50/hr)  |
 | `POST`     | `/verify_otp_async` | Verify OTP asynchronously                        |
 | `POST`     | `/logout`           | Log out current user                             |
 
@@ -349,6 +349,4 @@ Distributed under the **MIT License**. See `LICENSE` for more information.
 <p align="center">
   Made with ❤️ by <a href="https://github.com/Shubham00043">Shubham</a>
 </p>
-#   P l a n - B e n d o r a 
- 
- 
+#   P l a n - B e n d o r a
