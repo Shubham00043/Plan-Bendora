@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Account - Smart Course Allocation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            width: 100%;
+            overflow: hidden;
+            display: flex;
+            background-color: #ffffff;
+        }
+
+        /* Left Side - Image & Brand */
+        .brand-side {
+            flex: 1.2;
+            position: relative;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            color: white;
+            padding: 3rem;
+        }
+
+        .brand-bg-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            filter: contrast(1.05) saturate(1.2) brightness(1.05);
+        }
+
+        .brand-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 40%, rgba(0, 0, 0, 0.7) 100%);
+            z-index: 1;
+        }
+
+        .brand-overlay-content {
+            position: relative;
+            z-index: 2;
+            max-width: 600px;
+            margin-bottom: 2rem;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-logo-top {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            z-index: 2;
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-heading {
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+            letter-spacing: -0.02em;
+            color: #ffffff;
+        }
+
+        .brand-subtext {
+            font-size: 1.125rem;
+            line-height: 1.5;
+            opacity: 0.9;
+            color: #f8fafc;
+            max-width: 480px;
+            font-weight: 400;
+        }
+
+        /* Right Side - Form */
+        .login-side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            background: white;
+            position: relative;
+            overflow-y: auto;
+            /* Hide scrollbar for cleaner look, still scrollable */
+            scrollbar-width: thin;
+            scrollbar-color: #cbd5e1 transparent;
+        }
+
+        .login-side::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .login-side::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .login-side::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .login-container {
+            width: 100%;
+            max-width: 520px;
+            /* Wider for better breathing room */
+            padding-top: 3rem;
+            padding-bottom: 3rem;
+        }
+
+        .clg-logo {
+            width: 130px;
+            height: auto;
+            margin-bottom: 1.5rem;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.08));
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), filter 0.4s ease;
+            animation: delicateFloat 6s ease-in-out infinite;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .clg-logo:hover {
+            transform: scale(1.08) translateY(-2px);
+            filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.12));
+            animation-play-state: paused;
+        }
+
+        @keyframes delicateFloat {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .login-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #111;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .login-subtitle {
+            font-size: 1rem;
+            color: #64748b;
+        }
+
+        .login-subtitle a {
+            color: #000;
+            text-decoration: underline;
+            font-weight: 600;
+            text-underline-offset: 4px;
+        }
+
+        .login-subtitle a:hover {
+            opacity: 0.7;
+        }
+
+        /* Clean Form Grid */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.25rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 1rem;
+            /* Match login input height */
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            /* Softer rounded corners */
+            font-size: 1rem;
+            color: #0f172a;
+            background: #f8fafc;
+            /* Subtle background */
+            transition: all 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            background: #fff;
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        .form-input::placeholder {
+            color: #94a3b8;
+        }
+
+        .input-group-inline {
+            display: flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 0.35rem;
+            transition: all 0.2s;
+        }
+
+        .input-group-inline:focus-within {
+            background: #fff;
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+
+        .input-group-inline input {
+            flex-grow: 1;
+            border: none;
+            background: transparent;
+            padding: 0.65rem 1rem;
+            outline: none;
+            font-size: 1rem;
+            color: #0f172a;
+            width: 100%;
+        }
+
+        .input-group-inline input::placeholder {
+            color: #94a3b8;
+        }
+
+        .btn-inline {
+            background-color: #0f172a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.65rem 1.25rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, opacity 0.2s;
+            white-space: nowrap;
+        }
+
+        .btn-inline:hover:not(:disabled) {
+            background-color: #334155;
+        }
+
+        .btn-inline:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: #64748b;
+        }
+
+        select.form-input {
+            padding-right: 2.5rem;
+            cursor: pointer;
+        }
+
+        .btn-black {
+            width: 100%;
+            padding: 1rem;
+            background-color: #000;
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            /* Match inputs */
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .btn-black:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-black:active {
+            transform: translateY(0);
+        }
+
+        .form-hint {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.4rem;
+        }
+
+        /* Section dividers */
+        .form-section-divider {
+            margin: 2rem 0 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            position: relative;
+        }
+
+        .form-section-label {
+            position: absolute;
+            top: -0.75rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fff;
+            padding: 0 1rem;
+            color: #94a3b8;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        /* Alert Messages */
+        .alert-messages {
+            margin-bottom: 1.5rem;
+        }
+
+        .alert {
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            background: #fef2f2;
+            color: #991b1b;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            border: 1px solid #fee2e2;
+        }
+
+        .alert-success {
+            background: #f0fdf4;
+            color: #166534;
+            border-color: #dcfce7;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .brand-side {
+                display: none;
+            }
+
+            .login-side {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Left Side: Brand Image -->
+    <div class="brand-side">
+        <img src="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=2564&auto=format&fit=crop"
+            alt="Abstract Art" class="brand-bg-image">
+        <div class="brand-overlay"></div>
+
+        <div class="brand-logo-top">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16">
+                <path
+                    d="M8.186 1.113a.5.5 0 0 0-.372 0L1.846 3.5l2.404.961L10.404 2l-2.218-.887zm3.564 1.426L5.596 5 8 5.961 14.154 3.5l-2.404-.961zm3.25 1.7-6.5 2.6v7.922l6.5-2.6V4.24zM7.5 14.762V6.838L1 4.239v7.923l6.5 2.6zM7.443.184a1.5 1.5 0 0 1 1.114 0l7.129 2.852A.5.5 0 0 1 16 3.5v8.662a1 1 0 0 1-.629.928l-7.185 2.874a.5.5 0 0 1-.372 0L.63 13.09a1 1 0 0 1-.63-.928V3.5a.5.5 0 0 1 .314-.464L7.443.184z" />
+            </svg>
+            <span>SmartAllocation</span>
+        </div>
+
+        <div class="brand-overlay-content">
+            <h1 class="brand-heading">Start your<br>Journey Here</h1>
+            <p class="brand-subtext">Register to access course allocations, manage your profile, and stay updated with
+                academic schedules.</p>
+        </div>
+    </div>
+
+    <!-- Right Side: Registration Form -->
+    <div class="login-side">
+        <div class="login-container">
+            <div class="login-header">
+                <img src="{{ url_for('static', filename='clg_logo_nobg.png') }}" alt="College Logo" class="clg-logo"
+                    draggable="false">
+                <h2 class="login-title">Create Account</h2>
+                <p class="login-subtitle">
+                    Already have an account? <a href="{{ url_for('login') }}">Sign in</a>
+                </p>
+            </div>
+
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="alert-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                <!-- Account Setup -->
+                <div class="form-group">
+                    <label class="form-label" for="username">User ID</label>
+                    <input type="text" id="username" name="username" class="form-input" placeholder="12-digit UserID"
+                        required pattern="^[0-9]{12}$" inputmode="numeric" title="Exactly 12 digits required"
+                        minlength="12" maxlength="12"
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email Address</label>
+                    <div class="input-group-inline">
+                        <input type="email" id="email" name="email" placeholder="student@gmail.com" required
+                            pattern="[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,63}">
+                        <button type="button" class="btn-inline" id="sendOtpBtn" onclick="sendOTP()">Verify</button>
+                    </div>
+                    <div id="otpStatus" style="font-size: 0.8rem; margin-top: 0.5rem; display: none;"></div>
+                </div>
+
+                <div class="form-group" id="otpGroup" style="display: none;" role="region" aria-label="OTP Verification"
+                    aria-expanded="false">
+                    <label class="form-label" for="otp">Email Verification OTP</label>
+                    <div class="input-group-inline">
+                        <input type="text" inputmode="numeric" id="otp" name="otp" placeholder="••••••"
+                            pattern="^[0-9]{6}$" maxlength="6"
+                            style="letter-spacing: 0.5rem; text-align: center; font-size: 1.2rem; font-weight: bold;">
+                        <button type="button" class="btn-inline" id="verifyOtpBtn" onclick="verifyOTP()">Verify
+                            OTP</button>
+                    </div>
+                    <div id="otpVerifyStatus" style="font-size: 0.8rem; margin-top: 0.5rem; display: none;"
+                        aria-live="polite"></div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="password">Password</label>
+                    <input type="password" id="password" name="password" class="form-input"
+                        placeholder="Create a strong password" required autocomplete="new-password" minlength="6"
+                        maxlength="25">
+                    <div class="form-hint">Minimum 6 characters</div>
+                </div>
+
+                <div class="form-section-divider">
+                    <span class="form-section-label">Profile</span>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="full_name">Full Name</label>
+                    <input type="text" id="full_name" name="full_name" class="form-input"
+                        placeholder="Enter your full name" required pattern="[a-zA-Z\s]+" minlength="3" maxlength="30">
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="department">Department</label>
+                        <select id="department" name="department" required class="form-input">
+                            <option value="" disabled selected>Select Dept</option>
+                            <option value="Agricultural Engineering">Agricultural</option>
+                            <option value="Computer Science Engineering">CSE</option>
+                            <option value="Civil Engineering">Civil</option>
+                            <option value="Computer Science Design">CSD</option>
+                            <option value="Electronics and Computer Engineering">Electronics & Comp</option>
+                            <option value="Artificial Intelligence and Data Science">AI & DS</option>
+                            <option value="Mechanical Engineering">Mechanical</option>
+                            <option value="Electrical Engineering">Electrical</option>
+                            <option value="Mechatronics Engineering">Mechatronics</option>
+                            <option value="Plastics and Polymer Engineering">Plastics</option>
+                            <option value="Electronics and Telecommunication Engineering">E&TC</option>
+                            <option value="Information Technology">IT</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="mobile">Mobile</label>
+                        <input type="tel" id="mobile" name="mobile" class="form-input" placeholder="Mobile No." required
+                            pattern="^\d{10}$" maxlength="10" minlength="10">
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label" for="student_class">Class</label>
+                        <select id="student_class" name="student_class" required class="form-input">
+                            <option value="" disabled selected>Year</option>
+                            <option value="FY">First Year</option>
+                            <option value="SY">Second Year</option>
+                            <option value="TY">Third Year</option>
+                            <option value="Final Year">Final Year</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="roll_no">Roll No</label>
+                        <input type="text" id="roll_no" name="roll_no" class="form-input" placeholder="e.g. XX" required
+                            pattern="^[a-zA-Z0-9]+$" maxlength="10">
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-black" id="registerSubmitBtn">
+                    Create Account
+                </button>
+                <noscript>
+                    <div class="alert alert-error" style="margin-top: 1rem;">
+                        JavaScript is required to complete email verification. Please enable it.
+                    </div>
+                </noscript>
+            </form>
+
+            <div style="text-align: center; margin-top: 2rem; color: #94a3b8; font-size: 0.8rem;">
+                &copy; 2026 Smart Course Allocation System
+            </div>
+        </div>
+    </div>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>
+        function sendOTP() {
+            const emailInput = document.getElementById('email');
+            const email = emailInput.value.trim();
+            const btn = document.getElementById('sendOtpBtn');
+            const statusDiv = document.getElementById('otpStatus');
+            const otpGroup = document.getElementById('otpGroup');
+            const otpInput = document.getElementById('otp');
+
+            // Simple HTML email validation
+            if (!emailInput.checkValidity()) {
+                emailInput.reportValidity();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.setAttribute('aria-busy', 'true');
+            btn.textContent = "Sending...";
+            statusDiv.style.display = 'block';
+            statusDiv.style.color = '#64748b';
+            statusDiv.textContent = "Sending OTP to your email...";
+
+            fetch("{{ url_for('send_otp') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify({ email: email })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    btn.removeAttribute('aria-busy');
+                    if (data.success) {
+                        statusDiv.style.color = '#166534';
+                        statusDiv.textContent = data.message;
+                        otpGroup.style.display = 'block';
+                        otpGroup.setAttribute('aria-expanded', 'true');
+                        otpInput.setAttribute('required', 'required');
+                        btn.textContent = "Resend OTP";
+                        // Brief cooldown to avoid spam
+                        setTimeout(() => { btn.disabled = false; }, 60000);
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = "Verify";
+                        statusDiv.style.color = '#991b1b';
+                        statusDiv.textContent = data.message;
+                    }
+                })
+                .catch(err => {
+                    btn.removeAttribute('aria-busy');
+                    btn.disabled = false;
+                    btn.textContent = "Try Again";
+                    statusDiv.style.color = '#991b1b';
+                    statusDiv.textContent = "Network error occurred.";
+                });
+        }
+
+        function verifyOTP() {
+            const email = document.getElementById('email').value.trim();
+            const otpInput = document.getElementById('otp');
+            const otp = otpInput.value.trim();
+            const btn = document.getElementById('verifyOtpBtn');
+            const statusDiv = document.getElementById('otpVerifyStatus');
+            const submitBtn = document.getElementById('registerSubmitBtn');
+
+            if (!otpInput.checkValidity()) {
+                otpInput.reportValidity();
+                return;
+            }
+
+            btn.disabled = true;
+            btn.setAttribute('aria-busy', 'true');
+            btn.textContent = "Verifying...";
+            statusDiv.style.display = 'block';
+            statusDiv.style.color = '#64748b';
+            statusDiv.textContent = "Verifying your OTP...";
+
+            fetch("{{ url_for('verify_otp_async') }}", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRFToken": document.querySelector('input[name="csrf_token"]').value
+                },
+                body: JSON.stringify({ email: email, otp: otp })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    btn.removeAttribute('aria-busy');
+                    if (data.success) {
+                        statusDiv.style.color = '#166534';
+                        statusDiv.textContent = "✓ Email Verified!";
+                        btn.style.display = 'none';
+                        otpInput.readOnly = true;
+                        document.getElementById('email').readOnly = true;
+                        document.getElementById('sendOtpBtn').style.display = 'none';
+
+                        // Enable submit
+                        submitBtn.disabled = false;
+                        submitBtn.style.opacity = '1';
+                        submitBtn.style.cursor = 'pointer';
+                        submitBtn.textContent = "Create Account";
+                        submitBtn.focus();
+                    } else {
+                        btn.disabled = false;
+                        btn.textContent = "Verify OTP";
+                        statusDiv.style.color = '#991b1b';
+                        statusDiv.textContent = data.message;
+                    }
+                })
+                .catch(err => {
+                    btn.removeAttribute('aria-busy');
+                    btn.disabled = false;
+                    btn.textContent = "Try Again";
+                    statusDiv.style.color = '#991b1b';
+                    statusDiv.textContent = "Network error occurred.";
+                });
+        }
+    </script>
+</body>
+
+</html>
