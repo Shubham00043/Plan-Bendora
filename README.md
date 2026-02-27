@@ -17,6 +17,10 @@
 </p>
 
 <p align="center">
+  🚀 <strong>Live Demo:</strong> <a href="https://plan-bendora.onrender.com">https://plan-bendora.onrender.com</a>
+</p>
+
+<p align="center">
   <a href="#-key-features">Features</a> •
   <a href="#%EF%B8%8F-tech-stack">Tech Stack</a> •
   <a href="#%EF%B8%8F-installation--setup">Installation</a> •
