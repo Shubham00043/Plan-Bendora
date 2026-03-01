@@ -433,10 +433,9 @@
                 <!-- Account Setup -->
                 <div class="form-group">
                     <label class="form-label" for="username">User ID</label>
-                    <input type="text" id="username" name="username" class="form-input" placeholder="12-digit UserID"
-                        required pattern="^[0-9]{12}$" inputmode="numeric" title="Exactly 12 digits required"
-                        minlength="12" maxlength="12"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 12)">
+                    <input type="text" id="username" name="username" class="form-input" placeholder="e.g. shubham23"
+                        required pattern="^[a-zA-Z0-9\-_]{3,30}$" title="3-30 letters or numbers" minlength="3"
+                        maxlength="30" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\-_]/g, '').slice(0, 30)">
                 </div>
 
                 <div class="form-group">
@@ -546,6 +545,12 @@
     <script>
         function sendOTP() {
             const emailInput = document.getElementById('email');
+
+            // Auto append @gmail.com if no '@' is present
+            if (emailInput.value.trim() !== '' && !emailInput.value.includes('@')) {
+                emailInput.value = emailInput.value.trim() + '@gmail.com';
+            }
+
             const email = emailInput.value.trim();
             const btn = document.getElementById('sendOtpBtn');
             const statusDiv = document.getElementById('otpStatus');

@@ -198,8 +198,8 @@ def register():
             return render_template('register.html')
 
         # 1. UserID Validation
-        if not re.match(r'^\d{12}$', username):
-            flash('UserID must be exactly 12 digits.', 'error')
+        if not re.match(r'^[a-zA-Z0-9\-_]{3,30}$', username):
+            flash('UserID must be 3-30 characters long (letters, numbers).', 'error')
             return render_template('register.html')
             
         if not (1 <= len(roll_no) <= 10):
