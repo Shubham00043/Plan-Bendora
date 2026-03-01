@@ -17,11 +17,13 @@ from report_generator import ReportGenerator
 from datetime import datetime
 from flask_wtf.csrf import CSRFProtect
 import logging
+import os
 from dotenv import load_dotenv
 import re
 
-# Automatically load .env file if it exists, but don't fail if it doesn't
-load_dotenv()
+# Automatically load .env file from the same directory as app.py
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, '.env'), override=True)
 
 app = Flask(__name__)
 
