@@ -21,19 +21,16 @@ import os
 from dotenv import load_dotenv
 import re
 
-# Automatically load .env file from the same directory as app.py
 basedir = os.path.abspath(os.path.dirname(__file__))
 load_dotenv(os.path.join(basedir, '.env'), override=True)
 
 app = Flask(__name__)
 
-# Security: Load secret key from environment or generate a secure one for development
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY')
 if not app.config['SECRET_KEY']:
     if os.environ.get('FLASK_ENV') == 'development' or os.environ.get('FLASK_DEBUG') == '1':
         app.config['SECRET_KEY'] = 'dev-key-secure-in-prod'
     else:
-        # Generate a random one if missing in prod (safer than hardcoded)
         app.config['SECRET_KEY'] = os.urandom(24).hex()
 
 db_url = os.environ.get('DATABASE_URL')
@@ -48,8 +45,7 @@ app.config['OUTPUT_FOLDER'] = os.path.join(os.getcwd(), 'outputs')
 csrf = CSRFProtect(app)
 limiter = Limiter(get_remote_address, app=app, default_limits=["500 per day", "50 per hour"])
 
-# Sender Configuration for Brevo API
-app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME') # Used as sender email
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
 app.config['MAIL_DEFAULT_SENDER'] = os.environ.get('MAIL_USERNAME')
 
 db.init_app(app)
@@ -57,7 +53,6 @@ login_manager = LoginManager()
 login_manager.login_view = 'login'
 login_manager.init_app(app)
 
-# Ensure directories exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['OUTPUT_FOLDER'], exist_ok=True)
 
@@ -69,17 +64,14 @@ def load_user(user_id):
 def ratelimit_handler(e):
     return jsonify({'success': False, 'message': f"Rate limit exceeded: {e.description}"}), 429
 
-# --- Auth Routes ---
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         login_input = request.form.get('username')
         password = request.form.get('password')
         
-        # Try finding by username first
         user = User.query.filter_by(username=login_input).first()
         
-        # If not found, check if it's an email in the Student table
         if not user:
             student = Student.query.filter_by(email=login_input).first()
             if student:
@@ -101,7 +93,6 @@ def send_otp():
     if not re.match(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$', email.lower()):
         return jsonify({'success': False, 'message': 'Invalid email format'}), 400
 
-    # Check if a user already exists with this email
     existing_student = Student.query.filter_by(email=email.lower()).first()
     if existing_student:
         return jsonify({'success': False, 'message': 'User already exists with this email. Please Login.'}), 400
@@ -124,7 +115,6 @@ def send_otp():
             "content-type": "application/json"
         }
         sender_email = app.config.get('MAIL_USERNAME')
-        # Fallback for sender if MAIL_USERNAME isn't an email
         if not sender_email or '@' not in sender_email:
             sender_email = "noreply@smartallocation.com"
             
@@ -173,7 +163,6 @@ def verify_otp_async():
             return jsonify({'success': False, 'message': 'Maximum attempts exceeded. Please request a new OTP.'}), 429
         return jsonify({'success': False, 'message': 'Invalid OTP.'}), 400
         
-    # Valid OTP
     session['registration_otp_verified'] = True
     session.pop('registration_otp', None)
     return jsonify({'success': True, 'message': 'Email verified successfully!'})
@@ -181,7 +170,6 @@ def verify_otp_async():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Sanitization
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
         full_name = request.form.get('full_name', '').strip()
@@ -192,12 +180,10 @@ def register():
         mobile = request.form.get('mobile', '').strip()
         department = request.form.get('department', '').strip()
         
-        # Validation
         if not all([username, password, full_name, email, otp_input, student_class, roll_no, mobile, department]):
             flash('All fields are required.', 'error')
             return render_template('register.html')
 
-        # 1. UserID Validation
         if not re.match(r'^[a-zA-Z0-9\-_]{3,30}$', username):
             flash('UserID must be 3-30 characters long (letters, numbers).', 'error')
             return render_template('register.html')
@@ -206,22 +192,18 @@ def register():
             flash('Roll number must be between 1 and 10 characters.', 'error')
             return render_template('register.html')
 
-        # 2. Password Strength
         if len(password) < 6:
             flash('Password must be at least 6 characters long.', 'error')
             return render_template('register.html')
             
-        # 3. Mobile Validation
         if not re.match(r'^\d{10}$', mobile):
             flash('Mobile number must be exactly 10 digits.', 'error')
             return render_template('register.html')
 
-        # 4. Email Validation (Stricter)
         if not re.match(r'^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$', email):
            flash('Invalid email address format.', 'error')
            return render_template('register.html')
            
-        # 4.5. OTP Validation
         is_verified = session.get('registration_otp_verified')
         session_email = session.get('registration_email')
         
@@ -229,12 +211,10 @@ def register():
             flash('Invalid or expired OTP. Please verify your email again.', 'error')
             return render_template('register.html')
 
-        # 5. Full Name Validation
         if not re.match(r'^[a-zA-Z\s]+$', full_name) or len(full_name) < 3 or len(full_name) > 30:
             flash('Full name must contain only letters and spaces (3-30 chars).', 'error')
             return render_template('register.html')
 
-        # 6. Allowed Values
         allowed_classes = ['FY', 'SY', 'TY', 'Final Year']
         if student_class not in allowed_classes:
             flash('Invalid class selection.', 'error')
@@ -252,24 +232,19 @@ def register():
             flash('Invalid department selection.', 'error')
             return render_template('register.html')
         
-        # Security: Prevent privilege escalation by ignoring 'role' from form
-        role = 'student' # Default role
+        role = 'student'
         
         user_exists = User.query.filter_by(username=username).first()
         if user_exists:
             flash('UserID already exists', 'error')
         else:
-            # 1. Create User Login
             new_user = User(username=username, role=role)
             new_user.password = password
             db.session.add(new_user)
             
-            # 2. Create Student Profile
-            # Check if student record exists (e.g. from bulk upload)
             student = Student.query.filter_by(student_id=username).first()
             
             if student:
-                # Update existing record with registration details
                 student.name = full_name
                 student.email = email
                 student.student_class = student_class
@@ -277,7 +252,6 @@ def register():
                 student.mobile_no = mobile
                 student.department = department
             else:
-                # Create new student record
                 new_student = Student(
                     student_id=username,
                     name=full_name,
@@ -303,7 +277,6 @@ def logout():
     logout_user()
     return redirect(url_for('login'))
 
-# --- Helpers ---
 def get_config(key, default=None):
     cfg = SystemConfig.query.filter_by(key=key).first()
     return cfg.value if cfg else default
@@ -317,7 +290,6 @@ def set_config(key, value):
         cfg.value = str(value)
     db.session.commit()
 
-# --- Main App Routes ---
 @app.route('/')
 def index():
     if current_user.is_authenticated:
@@ -348,11 +320,10 @@ def dashboard():
         courses = Course.query.all()
         recommendations = student_record.get_recommendations() if student_record else []
         
-        # Check time window
         now = datetime.now()
         out_of_window = False
         window_message = None
-        window_state = 'open' # Default
+        window_state = 'open'
         
         try:
             if allocation_start:
@@ -371,16 +342,13 @@ def dashboard():
                 elif not out_of_window:
                     window_message = f"Window closes: {end_dt.strftime('%d %b %Y, %I:%M %p')}"
         except ValueError:
-            pass # Invalid format
+            pass
 
-        # Check if they can still submit
         already_submitted = student_record and student_record.preferences
         can_submit = (not already_submitted or allow_repref) and not out_of_window
         
-        # Number of preference slots = min(available courses, 8)
         num_preferences = min(len(courses), 8)
         
-        # Limit to latest 3 notices for students
         student_notices = notices[:3]
         
         return render_template('student_dashboard.html', 
@@ -409,7 +377,6 @@ def submit_preferences():
         flash('Preference re-submission is currently disabled.', 'error')
         return redirect(url_for('dashboard'))
 
-    # Time window validation
     allocation_start = get_config('allocation_start', '')
     allocation_end = get_config('allocation_end', '')
     now = datetime.now()
@@ -425,16 +392,13 @@ def submit_preferences():
 
     prefs = request.form.getlist('preferences')
     
-    # Validate: all preference slots must be filled (not empty)
     courses = Course.query.all()
     expected_count = min(len(courses), 8)
-    # Remove any empty values
     prefs = [p for p in prefs if p.strip()]
     if len(prefs) < expected_count:
         flash(f'All {expected_count} preference fields are required. Please fill every slot.', 'error')
         return redirect(url_for('dashboard'))
     
-    # Update or Create Student Record
     student = Student.query.filter_by(student_id=current_user.username).first()
     if not student:
         student = Student(student_id=current_user.username, name=current_user.username)
@@ -471,7 +435,6 @@ def edit_student(id):
         mobile = request.form.get('mobile')
         department = request.form.get('department')
         
-        # Validation (mirrors register)
         if not all([full_name, email, student_class, roll_no, mobile, department]):
             flash('All fields are required.', 'error')
             return render_template('edit_student.html', student=student)
@@ -484,7 +447,6 @@ def edit_student(id):
            flash('Invalid email address format.', 'error')
            return render_template('edit_student.html', student=student)
 
-        # Check for unique email across other students
         existing_email_student = Student.query.filter_by(email=email).first()
         if existing_email_student and existing_email_student.id != student.id:
             flash('Email already registered to another student.', 'error')
@@ -516,7 +478,6 @@ def delete_student(id):
         
     student = Student.query.get_or_404(id)
     try:
-        # Check if student has a linked User account and delete it too
         user = User.query.filter_by(username=student.student_id).first()
         if user:
             db.session.delete(user)
@@ -596,14 +557,12 @@ def upload_students():
         try:
             df, _ = DataProcessor.process_file(path)
             for _, row in df.iterrows():
-                # Check if student already exists
                 student = Student.query.filter_by(student_id=str(row['Student ID'])).first()
                 if not student:
                     student = Student(student_id=str(row['Student ID']), name=row['Name'])
                     db.session.add(student)
                 
                 student.name = row['Name']
-                # Collect all preference columns
                 prefs = [row[f'Preference {i}'] for i in range(1, 9) if f'Preference {i}' in row and pd.notna(row[f'Preference {i}'])]
                 student.preferences = prefs
                 
@@ -693,9 +652,8 @@ def run_allocation():
     try:
         engine = AllocationEngine(students, courses)
         results = engine.allocate()
-        db.session.commit() # Save allocations to DB
+        db.session.commit()
         
-        # Generate reports
         summary = engine.get_analytics()
         ReportGenerator.generate_excel(results, os.path.join(app.config['OUTPUT_FOLDER'], 'results.xlsx'))
         ReportGenerator.generate_pdf(results, summary, os.path.join(app.config['OUTPUT_FOLDER'], 'report.pdf'))
@@ -778,13 +736,10 @@ def reset_data():
         return redirect(url_for('dashboard'))
 
     try:
-        # Delete students and courses
-        # We keep Users (accounts) but reset their roles' data
         Student.query.delete()
         Course.query.delete()
         db.session.commit()
         
-        # Also delete generated reports
         for f in ['results.xlsx', 'report.pdf']:
             path = os.path.join(app.config['OUTPUT_FOLDER'], f)
             if os.path.exists(path): os.remove(path)
@@ -801,7 +756,6 @@ def init_db_command():
     """Clear existing data and create new tables."""
     db.create_all()
     
-    # Use environment provided password if available
     admin_pass = os.environ.get('ADMIN_PASSWORD', 'admin123')
     
     if not User.query.filter_by(username='admin').first():
@@ -833,14 +787,12 @@ def export_course_data(course_id):
         flash('Course not found.', 'error')
         return redirect(url_for('admin_results'))
 
-    # Fetch students allocated to this course
     students = Student.query.filter_by(allocated_course_id=course.id).all()
     
     if not students:
         flash(f'No students allocated to {course.name}.', 'warning')
         return redirect(url_for('admin_results'))
 
-    # Create CSV data
     data = []
     for s in students:
         data.append({
@@ -856,7 +808,6 @@ def export_course_data(course_id):
     
     df = pd.DataFrame(data)
     
-    # Generate response
     output = StringIO()
     df.to_csv(output, index=False)
     output.seek(0)
@@ -869,21 +820,18 @@ def export_course_data(course_id):
     )
 
 if __name__ == "__main__":
-    # Check if we are in development mode (default to true for local run)
     if os.environ.get('FLASK_ENV', 'development') == 'development':
         try:
             from livereload import Server
             server = Server(app.wsgi_app)
-            # Watch templates and static files for changes
             server.watch('templates/*.html')
             server.watch('static/*.css')
             server.watch('static/*.js')
-            print("🚀 Starting development server with LiveReload on http://127.0.0.1:5000")
+            print("Starting development server with LiveReload on http://127.0.0.1:5000")
             server.serve(port=5000, debug=True)
         except ImportError:
-            print("⚠️ LiveReload not installed. Falling back to standard Flask runner.")
-            print("💡 Tip: Run 'pip install livereload' for auto-browser refreshing.")
+            print("LiveReload not installed. Falling back to standard Flask runner.")
+            print("Tip: Run 'pip install livereload' for auto-browser refreshing.")
             app.run(debug=True)
     else:
-        # Production mode
         app.run(debug=False, host='0.0.0.0')
