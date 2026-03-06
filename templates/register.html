@@ -590,6 +590,7 @@
                         btn.textContent = "Resend OTP";
                         // Brief cooldown to avoid spam
                         setTimeout(() => { btn.disabled = false; }, 60000);
+                        otpInput.focus();
                     } else {
                         btn.disabled = false;
                         btn.textContent = "Verify";
@@ -605,6 +606,25 @@
                     statusDiv.textContent = "Network error occurred.";
                 });
         }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const emailInput = document.getElementById('email');
+
+            // Auto-append @gmail.com on blur (when leaving the field)
+            emailInput.addEventListener('blur', function () {
+                if (this.value.trim() !== '' && !this.value.includes('@')) {
+                    this.value = this.value.trim() + '@gmail.com';
+                }
+            });
+
+            // Trigger Verify button on Enter key press
+            emailInput.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    document.getElementById('sendOtpBtn').click();
+                }
+            });
+        });
 
         function verifyOTP() {
             const email = document.getElementById('email').value.trim();

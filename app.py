@@ -775,6 +775,19 @@ def init_db_command():
     
     print("Database initialized successfully.")
 
+@app.route('/api/course-seats')
+def get_course_seats():
+    courses = Course.query.all()
+    seat_data = {}
+    for c in courses:
+        allocated = Student.query.filter_by(allocated_course_id=c.id).count()
+        remaining = max(0, c.capacity - allocated)
+        seat_data[c.name] = {
+            'total': c.capacity,
+            'remaining': remaining
+        }
+    return jsonify(seat_data)
+
 @app.route('/admin/export_course/<int:course_id>')
 @login_required
 def export_course_data(course_id):
